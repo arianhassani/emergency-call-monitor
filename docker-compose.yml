@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:14
+    container_name: emergency_db
+    environment:
+      POSTGRES_DB: emergency_db
+      POSTGRES_USER: emergency_user
+      POSTGRES_PASSWORD: emergency_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emergency_user -d emergency_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    container_name: emergency_app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGDATABASE: emergency_db
+      PGUSER: emergency_user
+      PGPASSWORD: emergency_pass
+    command: ["bash", "-lc", "python -m src.monitor --once --window 10"]
+
+volumes:
+  pgdata:
