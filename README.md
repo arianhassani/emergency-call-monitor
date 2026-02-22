@@ -19,7 +19,7 @@ The system consists of two CLI components.
 
 ### Monitor
 
-- Aggregates calls from the last _N_ minutes  
+- Aggregates calls from the last N minutes  
 - Computes:
   - total calls  
   - failed calls  
